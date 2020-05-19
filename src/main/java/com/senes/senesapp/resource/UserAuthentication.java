@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -53,9 +54,9 @@ public class UserAuthentication {
 		
 		//Bloco para adquirir as funções do usuário
 		//Localiza o usuário no banco através do nome e associa as funções do mesmo
-		User userLogin = new User();
-		userLogin = userRepository.findByCpf(credential.getCpfLogin());
-		roles.add(userLogin.getRole());
+		//Optional userLogin = userRepository.findByCpf(credential.getCpfLogin());
+		//User usuarioEncontrado = (User) userLogin.get();
+		//roles.add(usuarioEncontrado.getRole());
 		
 		//Realiza a criação do token utilzando o nome e as funções que serão atribuidas como dados de payload
 		//String token = jwtService.createToken(credential.getCpfLogin(), roles);

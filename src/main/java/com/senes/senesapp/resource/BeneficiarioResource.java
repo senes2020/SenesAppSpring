@@ -19,14 +19,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.senes.senesapp.dto.BeneficiarioDTO;
 import com.senes.senesapp.model.Beneficiario;
+import com.senes.senesapp.model.BeneficiarioCredentials;
 import com.senes.senesapp.model.User;
+import com.senes.senesapp.model.UserCredentials;
 import com.senes.senesapp.repository.BeneficiarioRepository;
 import com.senes.senesapp.repository.UserRepository;
 import com.senes.senesapp.tools.email.send.Mailer;
 import com.senes.senesapp.tools.email.send.Mensagem;
 
 @RestController
-@RequestMapping("/home")
+@RequestMapping("/senes/beneficiario")
 @CrossOrigin
 public class BeneficiarioResource {
 	
@@ -39,114 +41,82 @@ public class BeneficiarioResource {
 	@Autowired
 	Mailer mailer;
 	
-	//ROTAS DE AUTENTICAÇÃO
-	@GetMapping("/autenticar/cpf/{cpf}")
-	public ResponseEntity<?> autenticarCpf(@PathVariable String cpf){
-		//return "Realizando lógica de autenticação ao receber CPF, retornando o envio do código ao email e atualizando o código na tabela";
-		
-		Optional<Beneficiario> beneficiarioConsultado = beneficiarioRepository.findByCpf(cpf);
-		Beneficiario beneficiario = (Beneficiario) beneficiarioConsultado.get();
-		
-		//Ao invés de retornar o objeto dentista completo, a partir dele são setados
-		//os valores para retornar o dentista do DTO
-		//que já possui os valores permitidos para retorno
-		BeneficiarioDTO beneficiarioDTO = new BeneficiarioDTO();
-		
-		//Obtendo codigo do beneficiario
-		long id = beneficiario.getId();
-		
-		//Obtendo email do beneficiario
-		String email = beneficiario.getEmail();
-		
-		//Gerar código randômico
-		Random rnd = new Random();
-		int codigoRand = 10000 + rnd.nextInt(90000);
-		
-		//Atualizar código no banco desse usuário
-		atualizarCodigo(id, codigoRand);
-		
-		//Enviar código para o email coletado
-		enviarCodigoPorEmail(email, codigoRand);
-		
-		//retornar nome e email do usuário
-		beneficiarioDTO.setEmail(beneficiario.getEmail());
-		beneficiarioDTO.setNome(beneficiario.getNome());
-		
-		//Retorna o dentistaDTO se houver o objeto pesquisado, senão retorna o erro de "não encontrado"
-		return beneficiarioConsultado.isPresent() ? ResponseEntity.ok(beneficiarioDTO) : ResponseEntity.notFound().build();
-	}
-	
-	//Atualização de código de verificação
-	private void atualizarCodigo(long id, int codigoRand) {
-
-		//Coleta o beneficiário específico que terá o código atualizado
-		Beneficiario beneficiario = beneficiarioRepository.findById(id);
-		
-		//Atualiza o código nesse objeto
-		beneficiario.setCodigo(codigoRand);
-		
-		//Salva o novo código
-		Beneficiario beneficiarioAtualizado = beneficiarioRepository.save(beneficiario);
-		
-	}
-	
-	//Código que envia email com código randômico
-	private void enviarCodigoPorEmail(String email, int codigoRand) {
-		
-		mailer.enviar(new Mensagem("SENES APP <senessenai@gmail.com>", 
-				Arrays.asList("SENES APP <" + email + ">")
-				, "Olá, trouxe seu código ^^ SENES", "Olá! Vi que está tentando acessar sua conta! \n\n Seu código de acesso é: "+ codigoRand +"!"));
-		
-	}
-
-	@GetMapping("/autenticar/codigo/{codigo}")
-	public ResponseEntity<?> autenticarCodigo(@PathVariable int codigo){
+	//VISUALIZAÇÃO DE BENEFICIÁRIO	
+	@GetMapping("/visualizar/codigo/{codigo}")
+	public ResponseEntity<?> buscarDadosBeneficiario(@PathVariable Long idUsuario){
 		//return "Realizando lógica de autenticação ao receber o código, retornando o usuário completo caso esteja ok";
 		
-		Optional beneficiarioConsultado = beneficiarioRepository.findByCodigo(codigo);
+		Optional beneficiarioConsultado = beneficiarioRepository.findByIdUser(idUsuario);
 		Beneficiario beneficiario = (Beneficiario) beneficiarioConsultado.get();
 		
-		//Ao invés de retornar o objeto dentista completo, a partir dele são setados
-		//os valores para retornar o dentista do DTO
-		//que já possui os valores permitidos para retorno
-		BeneficiarioDTO beneficiarioDTO = new BeneficiarioDTO();
-		beneficiarioDTO.setEmail(beneficiario.getEmail());
-		beneficiarioDTO.setNome(beneficiario.getNome());
+		BeneficiarioDTO beneficiarioDto = new BeneficiarioDTO();
+		
+		if(beneficiarioConsultado.isPresent()) {
+			
+			Optional usuarioConsultado = userRepository.findById(idUsuario);
+			User usuario = (User) usuarioConsultado.get();
+			
+			beneficiarioDto.setNome(beneficiario.getNome());
+			beneficiarioDto.setEmail(usuario.getEmail());
+		}
 		
 		//Retorna o dentistaDTO se houver o objeto pesquisado, senão retorna o erro de "não encontrado"
-		return beneficiarioConsultado.isPresent() ? ResponseEntity.ok(beneficiarioDTO) : ResponseEntity.notFound().build();
+		return beneficiarioConsultado.isPresent() ? ResponseEntity.ok(beneficiarioDto) : ResponseEntity.notFound().build();
+		
+	}
+		
+	//ROTAS DE CADASTRO
+	
+	//Código que verifica se código enviado confere com algum usuário passado no banco
+	public User confirmarIdentificacao(@PathVariable int codigo){
+		
+		Optional usuarioConsultado = userRepository.findByCodigo(codigo);
+		User usuarioExistente = (User) usuarioConsultado.get();
+		
+		if(usuarioConsultado.isPresent()){
+			
+			//Atualizando a confirmação do email
+			//e também salvando-o como beneficiário
+			usuarioExistente.setFlgEmailVerificado(1);
+			usuarioExistente.setFlgBeneficiario(1);
+			
+			User usuarioAtualizado = userRepository.save(usuarioExistente);
+			
+			return usuarioAtualizado;
+			
+		}else {
+			return null;
+		}
 		
 	}
 	
-	//ROTAS DE CADASTRO
-	@PostMapping("/registrar")
-	public  ResponseEntity<?> cadastrarBeneficiario(@RequestBody Beneficiario beneficiario) {
+	//Código que cadastra um beneficiário se houver um código verificado com esse CPF no usuário
+	@PostMapping("/registrar/")
+	public  ResponseEntity<?> cadastrarBeneficiario(@RequestBody BeneficiarioCredentials beneficiarioEnviado) {
 		
-		Beneficiario beneficiarioNovo = beneficiarioRepository.save(beneficiario);
+		//Criação de objeto que receberá os detalhes de um novo beneficiário, se tiver o usuário confirmado
+		Beneficiario beneficiarioNovo = new Beneficiario();
 		
-		//Ao invés de retornar o objeto dentista completo, a partir dele são setados
-		//os valores para retornar o dentista do DTO
-		//que já possui os valores permitidos para retorno
+		//Criação de objeto para retorno de dados, caso seja cadastrado com sucesso
 		BeneficiarioDTO beneficiarioDTO = new BeneficiarioDTO();
 		
-		if( beneficiarioNovo != null) {
+		//Recebimento do código e confirmação do mesmo na tabela de usuários
+		int codigo = beneficiarioEnviado.getCodigo();
+		User usuario = confirmarIdentificacao(codigo);
+		
+		//Se retornar um usuário e ele for um beneficiário e tiver um email confirmado
+		//Alimenta o objeto Beneficiário e o salva
+		//Depois alimenta o objeto DTO de retorno
+		if(usuario != null && usuario.getFlgBeneficiario() == 1 && usuario.getFlgEmailVerificado() == 1) {
 			
-			//Obtendo email do beneficiario
-			String email = beneficiarioNovo.getEmail();
-			Long id = beneficiarioNovo.getId();
+			beneficiarioNovo.setIdUser(usuario.getId());
+			beneficiarioNovo.setCelular(beneficiarioEnviado.getCelular());
+			beneficiarioNovo.setNome(beneficiarioEnviado.getNome());
 			
-			//Gerar código randômico
-			Random rnd = new Random();
-			int codigoRand = 10000 + rnd.nextInt(90000);
+			beneficiarioNovo = beneficiarioRepository.save(beneficiarioNovo);
 			
-			//Atualizar código no banco desse usuário
-			atualizarCodigo(id, codigoRand);
-			
-			//Enviar código para o email coletado
-			enviarCodigoPorEmail(email, codigoRand);
-			
-			//retornar nome e email do usuário
-			beneficiarioDTO.setEmail(beneficiarioNovo.getEmail());
+			//retornar nome e email do usuário, somente
+			beneficiarioDTO.setEmail(usuario.getEmail());
 			beneficiarioDTO.setNome(beneficiarioNovo.getNome());
 			
 		}
@@ -155,6 +125,8 @@ public class BeneficiarioResource {
 		return beneficiarioNovo != null ? ResponseEntity.ok(beneficiarioDTO) : ResponseEntity.notFound().build();
 		
 	}
+	
+	
 }
 
 

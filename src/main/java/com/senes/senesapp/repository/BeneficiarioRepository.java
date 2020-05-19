@@ -12,9 +12,11 @@ import com.senes.senesapp.model.Beneficiario;
 public interface BeneficiarioRepository extends JpaRepository<Beneficiario, Long>{
 
 	Beneficiario findById(long id);
+	
+	Optional<Beneficiario> findByIdUser(long id);
 
-	Optional<Beneficiario> findByCpf(String cpf);
+	//Optional<Beneficiario> findByCpf(String cpf);
 
-	Optional<Beneficiario> findByCodigo(int codigo);
+	//Optional<Beneficiario> findByCodigo(int codigo);
 	
 }

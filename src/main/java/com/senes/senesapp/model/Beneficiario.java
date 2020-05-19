@@ -20,7 +20,9 @@ import org.springframework.format.annotation.NumberFormat;
 public class Beneficiario implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
+	
+	//Versão sem tabela de usuários
+	/*
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
@@ -82,6 +84,54 @@ public class Beneficiario implements Serializable {
 	public void setId(long id) {
 		this.id = id;
 	}
+	*/
+	
+	//Versão com tabela de usuários
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
+	
+	private long idUser;
+	
+	@NotNull
+	@Size(min=5, max=100, message="Por favor, digite um nome com pelo menos 5 carctéres.")
+	private String nome;
+	
+	@NotNull
+	private String celular;
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public long getIdUser() {
+		return idUser;
+	}
+
+	public void setIdUser(long idUser) {
+		this.idUser = idUser;
+	}
+
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+
+	public String getCelular() {
+		return celular;
+	}
+
+	public void setCelular(String celular) {
+		this.celular = celular;
+	}
+	
 	
 	
 }
