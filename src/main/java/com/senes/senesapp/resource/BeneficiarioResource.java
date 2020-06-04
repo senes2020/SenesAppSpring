@@ -42,11 +42,11 @@ public class BeneficiarioResource {
 	Mailer mailer;
 	
 	//VISUALIZAÇÃO DE BENEFICIÁRIO	
-	@GetMapping("/visualizar/codigo/{codigo}")
+	@GetMapping("/visualizar/codigo/{idUsuario}")
 	public ResponseEntity<?> buscarDadosBeneficiario(@PathVariable Long idUsuario){
 		//return "Realizando lógica de autenticação ao receber o código, retornando o usuário completo caso esteja ok";
 		
-		Optional beneficiarioConsultado = beneficiarioRepository.findByIdUser(idUsuario);
+		Optional beneficiarioConsultado = beneficiarioRepository.findByUser_Id(idUsuario);
 		Beneficiario beneficiario = (Beneficiario) beneficiarioConsultado.get();
 		
 		BeneficiarioDTO beneficiarioDto = new BeneficiarioDTO();
@@ -67,29 +67,6 @@ public class BeneficiarioResource {
 		
 	//ROTAS DE CADASTRO
 	
-	//Código que verifica se código enviado confere com algum usuário passado no banco
-	public User confirmarIdentificacao(@PathVariable int codigo){
-		
-		Optional usuarioConsultado = userRepository.findByCodigo(codigo);
-		User usuarioExistente = (User) usuarioConsultado.get();
-		
-		if(usuarioConsultado.isPresent()){
-			
-			//Atualizando a confirmação do email
-			//e também salvando-o como beneficiário
-			usuarioExistente.setFlgEmailVerificado(1);
-			usuarioExistente.setFlgBeneficiario(1);
-			
-			User usuarioAtualizado = userRepository.save(usuarioExistente);
-			
-			return usuarioAtualizado;
-			
-		}else {
-			return null;
-		}
-		
-	}
-	
 	//Código que cadastra um beneficiário se houver um código verificado com esse CPF no usuário
 	@PostMapping("/registrar/")
 	public  ResponseEntity<?> cadastrarBeneficiario(@RequestBody BeneficiarioCredentials beneficiarioEnviado) {
@@ -102,27 +79,38 @@ public class BeneficiarioResource {
 		
 		//Recebimento do código e confirmação do mesmo na tabela de usuários
 		int codigo = beneficiarioEnviado.getCodigo();
-		User usuario = confirmarIdentificacao(codigo);
 		
-		//Se retornar um usuário e ele for um beneficiário e tiver um email confirmado
-		//Alimenta o objeto Beneficiário e o salva
-		//Depois alimenta o objeto DTO de retorno
-		if(usuario != null && usuario.getFlgBeneficiario() == 1 && usuario.getFlgEmailVerificado() == 1) {
+		Optional usuarioConfirmado = userRepository.findByCodigo(codigo);
+		
+		User usuario = new User();
+		
+		//Confirmando se existe um usuário que esteja com esse código
+		if(usuarioConfirmado.isPresent()) {
 			
-			beneficiarioNovo.setIdUser(usuario.getId());
-			beneficiarioNovo.setCelular(beneficiarioEnviado.getCelular());
-			beneficiarioNovo.setNome(beneficiarioEnviado.getNome());
+			//Caso tenha um usuário confirmado, coleta o mesmo
+			usuario = (User) usuarioConfirmado.get();
 			
-			beneficiarioNovo = beneficiarioRepository.save(beneficiarioNovo);
-			
-			//retornar nome e email do usuário, somente
-			beneficiarioDTO.setEmail(usuario.getEmail());
-			beneficiarioDTO.setNome(beneficiarioNovo.getNome());
-			
+			//Se retornar um usuário e ele for um beneficiário e tiver um email confirmado
+			//Alimenta o objeto Beneficiário e o salva
+			//Depois alimenta o objeto DTO de retorno
+			if(usuario.getFlgBeneficiario() == 1 && usuario.getFlgEmailVerificado() == 1) {
+				
+				beneficiarioNovo.setIdUser(usuario.getId());
+				beneficiarioNovo.setCelular(beneficiarioEnviado.getCelular());
+				beneficiarioNovo.setNome(beneficiarioEnviado.getNome());
+				
+				beneficiarioNovo = beneficiarioRepository.save(beneficiarioNovo);
+				
+				//retornar nome e email do usuário, somente
+				beneficiarioDTO.setEmail(usuario.getEmail());
+				beneficiarioDTO.setNome(beneficiarioNovo.getNome());
+				
+			}
 		}
 		
+		
 		//Retorna o dentistaDTO se houver o objeto pesquisado, senão retorna o erro de "não encontrado"
-		return beneficiarioNovo != null ? ResponseEntity.ok(beneficiarioDTO) : ResponseEntity.notFound().build();
+		return usuarioConfirmado.isPresent() ? ResponseEntity.ok(beneficiarioDTO) : ResponseEntity.notFound().build();
 		
 	}
 	

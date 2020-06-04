@@ -8,21 +8,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.br.CPF;
-import org.springframework.format.annotation.NumberFormat;
-
 @Entity
-@Table(name="tbl_beneficiario")
-public class Beneficiario implements Serializable {
-
-	private static final long serialVersionUID = 1L;
+@Table(name="tbl_companheiro")
+public class Companheiro implements Serializable{
+	
+private static final long serialVersionUID = 1L;
 	
 	//Versão com tabela de usuários
 	@Id
@@ -32,8 +26,6 @@ public class Beneficiario implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "idUser",referencedColumnName = "id")
 	private User user;
-	
-	//private long idUser;
 	
 	@NotNull
 	@Size(min=3, max=100, message="Por favor, digite um nome com pelo menos 3 caracteres.")
@@ -49,22 +41,14 @@ public class Beneficiario implements Serializable {
 	public void setId(long id) {
 		this.id = id;
 	}
-	
-	public long getIdUser() {
-		return user.getId();
+
+	public User getUser() {
+		return user;
 	}
 
-	public void setIdUser(long idUser) {
-		this.user.setId(idUser);
+	public void setUser(User user) {
+		this.user = user;
 	}
-
-	/*public long getIdUser() {
-		return idUser;
-	}
-
-	public void setIdUser(long idUser) {
-		this.idUser = idUser;
-	}*/
 
 	public String getNome() {
 		return nome;
@@ -81,19 +65,11 @@ public class Beneficiario implements Serializable {
 	public void setCelular(String celular) {
 		this.celular = celular;
 	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
 	
 	
-	
+
 }
-
-
-
-
-
-
-
-
-
-
-
-

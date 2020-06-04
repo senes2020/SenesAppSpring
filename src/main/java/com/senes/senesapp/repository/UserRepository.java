@@ -1,10 +1,15 @@
 package com.senes.senesapp.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.senes.senesapp.model.User;
+
+
 
 
 //Dessa vez criando repository extendendo CrudRepository
@@ -12,7 +17,7 @@ import com.senes.senesapp.model.User;
 //enquanto o CrudRepository possui o básico de CRUD
 public interface UserRepository extends JpaRepository<User, Long>{
 	
-	User findById(long id);
+	Optional findById(long id);
 	
 	User findByCpf(String cpf);
 
