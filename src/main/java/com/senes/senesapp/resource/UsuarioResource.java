@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.senes.senesapp.dto.UsuarioDTO;
 import com.senes.senesapp.model.AtualizacaoUsuario;
 import com.senes.senesapp.model.Beneficiario;
 import com.senes.senesapp.model.Companheiro;
@@ -56,6 +57,8 @@ public class UsuarioResource {
 		
 		User usuario = new User();
 		
+		UsuarioDTO usuarioDTO = new UsuarioDTO();
+		
 		//Se tiver retornado algum usuário, significa que existe um usuário salvo como companheiro (trabalhador)
 		if(retorno.isPresent()){
 			
@@ -77,10 +80,19 @@ public class UsuarioResource {
 			
 			//Enviar código para o email coletado
 			enviarCodigoPorEmail(email, codigoRand);
+			
+			//Tratamento do email retornado
+			char inicialEmail = usuario.getEmail().charAt(0);
+			String partesEmail[] = usuario.getEmail().split("@");
+			
+			//Setando retorno de usuário
+			usuarioDTO.setId(usuario.getId());
+			usuarioDTO.setCpf(usuario.getCpf());	
+			usuarioDTO.setEmail(inicialEmail + "*****@" + partesEmail[1]);
 		}
 		
 		//Retorna o dentistaDTO se houver o objeto pesquisado, senão retorna o erro de "não encontrado"
-		return retorno.isPresent() ? ResponseEntity.ok(usuario) : ResponseEntity.notFound().build();
+		return retorno.isPresent() ? ResponseEntity.ok(usuarioDTO) : ResponseEntity.notFound().build();
 	}
 	
 	//Atualização de código de verificação de um usuário
@@ -253,25 +265,35 @@ public class UsuarioResource {
 		
 		String novoEmail = usuarioAtualizado.getEmailAtualizacao();
 		
+		//Muda de resultado quando o email antigo enviado for igual ao cadastrado no banco
+		Boolean emailVerificado = false;
+		
 		if(usuarioConsultado.isPresent()) {
 			
 			//Coletando o usuário encontrado
 			//atualizando novo email e zerando a verificação
 			usuario = (User) usuarioConsultado.get();
 			
-			//Gerar código randômico
-			Random rnd = new Random();
-			int codigoRand = 10000 + rnd.nextInt(90000);
+			//Se o email antigo enviado for o correto, um código será enviado para o email novo
+			if(usuario.getEmail().equals(usuarioAtualizado.getEmailAntigo())) {
+				
+				emailVerificado = true;
 			
-			//Atualizar código no banco desse usuário
-			atualizarCodigo(codigoUsuario, codigoRand);
+				//Gerar código randômico
+				Random rnd = new Random();
+				int codigoRand = 10000 + rnd.nextInt(90000);
+				
+				//Atualizar código no banco desse usuário
+				atualizarCodigo(codigoUsuario, codigoRand);
+				
+				//Enviar código para o email coletado
+				enviarCodigoPorEmail(novoEmail, codigoRand);
+			}
 			
-			//Enviar código para o email coletado
-			enviarCodigoPorEmail(novoEmail, codigoRand);
 		}
 		
 		//Retorna o dentistaDTO se houver o objeto pesquisado, senão retorna o erro de "não encontrado"
-		return usuarioConsultado.isPresent() ? ResponseEntity.ok(usuario) : ResponseEntity.notFound().build();
+		return emailVerificado ? ResponseEntity.ok(usuario) : ResponseEntity.notFound().build();
 		
 	}
 	

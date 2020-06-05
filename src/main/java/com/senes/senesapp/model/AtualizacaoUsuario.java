@@ -6,6 +6,8 @@ public class AtualizacaoUsuario {
 	
 	private String emailAtualizacao;
 	
+	private String emailAntigo;
+	
 	private String numeroAtualizacao;
 
 	public String getCpfAtualizacao() {
@@ -30,6 +32,14 @@ public class AtualizacaoUsuario {
 
 	public void setNumeroAtualizacao(String numeroAtualizacao) {
 		this.numeroAtualizacao = numeroAtualizacao;
+	}
+
+	public String getEmailAntigo() {
+		return emailAntigo;
+	}
+
+	public void setEmailAntigo(String emailAntigo) {
+		this.emailAntigo = emailAntigo;
 	}
 
 	
