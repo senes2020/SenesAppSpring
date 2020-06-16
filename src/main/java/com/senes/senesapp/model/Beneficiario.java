@@ -33,8 +33,6 @@ public class Beneficiario implements Serializable {
 	@JoinColumn(name = "idUser",referencedColumnName = "id")
 	private User user;
 	
-	//private long idUser;
-	
 	@NotNull
 	@Size(min=3, max=100, message="Por favor, digite um nome com pelo menos 3 caracteres.")
 	private String nome;

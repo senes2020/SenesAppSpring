@@ -1,6 +1,6 @@
 package com.senes.senesapp.dto;
 
-public class BeneficiarioDTO {
+public class CompanheiroDTO {
 	
 	private Long id;
 	private Long idUsuario;
@@ -47,6 +47,5 @@ public class BeneficiarioDTO {
 	public void setIdUsuario(Long idUsuario) {
 		this.idUsuario = idUsuario;
 	}
-
 
 }

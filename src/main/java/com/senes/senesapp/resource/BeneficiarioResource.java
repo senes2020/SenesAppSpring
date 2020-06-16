@@ -42,22 +42,26 @@ public class BeneficiarioResource {
 	Mailer mailer;
 	
 	//VISUALIZAÇÃO DE BENEFICIÁRIO	
-	@GetMapping("/visualizar/codigo/{idUsuario}")
+	@GetMapping("/codigo/usuario/{idUsuario}")
 	public ResponseEntity<?> buscarDadosBeneficiario(@PathVariable Long idUsuario){
-		//return "Realizando lógica de autenticação ao receber o código, retornando o usuário completo caso esteja ok";
-		
+	
 		Optional beneficiarioConsultado = beneficiarioRepository.findByUser_Id(idUsuario);
-		Beneficiario beneficiario = (Beneficiario) beneficiarioConsultado.get();
-		
+				
 		BeneficiarioDTO beneficiarioDto = new BeneficiarioDTO();
 		
 		if(beneficiarioConsultado.isPresent()) {
 			
+			Beneficiario beneficiario = (Beneficiario) beneficiarioConsultado.get();
+			
 			Optional usuarioConsultado = userRepository.findById(idUsuario);
 			User usuario = (User) usuarioConsultado.get();
 			
+			beneficiarioDto.setId(beneficiario.getId());
+			beneficiarioDto.setIdUsuario(beneficiario.getIdUser());
+			beneficiarioDto.setCelular(beneficiario.getCelular());
 			beneficiarioDto.setNome(beneficiario.getNome());
 			beneficiarioDto.setEmail(usuario.getEmail());
+			
 		}
 		
 		//Retorna o dentistaDTO se houver o objeto pesquisado, senão retorna o erro de "não encontrado"

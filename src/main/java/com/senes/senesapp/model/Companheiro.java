@@ -70,6 +70,12 @@ private static final long serialVersionUID = 1L;
 		return serialVersionUID;
 	}
 	
-	
+	public long getIdUser() {
+		return user.getId();
+	}
+
+	public void setIdUser(long idUser) {
+		this.user.setId(idUser);
+	}
 
 }

@@ -296,9 +296,7 @@ public class UsuarioResource {
 		return emailVerificado ? ResponseEntity.ok(usuario) : ResponseEntity.notFound().build();
 		
 	}
-	
-	
-	
+		
 	@PutMapping("/atualizar/codigo/{codigoUsuario}")
 	public ResponseEntity<?> enviarCodigoEmailNovoPorNumero(@PathVariable int codigoUsuario, @RequestBody AtualizacaoUsuario usuarioAtualizado){
 		//return "Realizando lógica de autenticação ao receber o código, retornando o usuário completo caso esteja ok";
@@ -403,5 +401,5 @@ public class UsuarioResource {
 		//Retorna o dentistaDTO se houver o objeto pesquisado, senão retorna o erro de "não encontrado"
 		return beneficiarioProcurado.isPresent() || companheiroProcurado.isPresent() ? ResponseEntity.ok(celulares) : ResponseEntity.notFound().build();
 	}
-
+	
 }
