@@ -52,17 +52,9 @@ public class Beneficiario implements Serializable {
 		return user.getId();
 	}
 
-	public void setIdUser(long idUser) {
-		this.user.setId(idUser);
+	public void setUser(User user) {
+		this.user = user;
 	}
-
-	/*public long getIdUser() {
-		return idUser;
-	}
-
-	public void setIdUser(long idUser) {
-		this.idUser = idUser;
-	}*/
 
 	public String getNome() {
 		return nome;

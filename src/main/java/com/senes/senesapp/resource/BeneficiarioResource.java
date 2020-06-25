@@ -81,6 +81,9 @@ public class BeneficiarioResource {
 		//Criação de objeto para retorno de dados, caso seja cadastrado com sucesso
 		BeneficiarioDTO beneficiarioDTO = new BeneficiarioDTO();
 		
+		//Criação de booleano para representação de conclusão
+		Boolean cadastrado = false;
+		
 		//Recebimento do código e confirmação do mesmo na tabela de usuários
 		int codigo = beneficiarioEnviado.getCodigo();
 		
@@ -94,12 +97,20 @@ public class BeneficiarioResource {
 			//Caso tenha um usuário confirmado, coleta o mesmo
 			usuario = (User) usuarioConfirmado.get();
 			
+			//Confirmando a verificação de email
+			if(usuario.getCpf().equals(beneficiarioEnviado.getCpf())) {
+				
+				//Caso corresponda, significa que houve a verificação do emial
+				usuario.setFlgEmailVerificado(1);
+				usuario = userRepository.save(usuario);
+			}
+			
 			//Se retornar um usuário e ele for um beneficiário e tiver um email confirmado
 			//Alimenta o objeto Beneficiário e o salva
 			//Depois alimenta o objeto DTO de retorno
 			if(usuario.getFlgBeneficiario() == 1 && usuario.getFlgEmailVerificado() == 1) {
 				
-				beneficiarioNovo.setIdUser(usuario.getId());
+				beneficiarioNovo.setUser(usuario);
 				beneficiarioNovo.setCelular(beneficiarioEnviado.getCelular());
 				beneficiarioNovo.setNome(beneficiarioEnviado.getNome());
 				
@@ -109,12 +120,14 @@ public class BeneficiarioResource {
 				beneficiarioDTO.setEmail(usuario.getEmail());
 				beneficiarioDTO.setNome(beneficiarioNovo.getNome());
 				
+				cadastrado = true;
+				
 			}
 		}
 		
 		
 		//Retorna o dentistaDTO se houver o objeto pesquisado, senão retorna o erro de "não encontrado"
-		return usuarioConfirmado.isPresent() ? ResponseEntity.ok(beneficiarioDTO) : ResponseEntity.notFound().build();
+		return cadastrado ? ResponseEntity.ok(beneficiarioDTO) : ResponseEntity.notFound().build();
 		
 	}
 	

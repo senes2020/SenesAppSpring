@@ -1,5 +1,6 @@
 package com.senes.senesapp.resource;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,12 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.senes.senesapp.dto.BeneficiarioDTO;
 import com.senes.senesapp.dto.CompanheiroDTO;
-import com.senes.senesapp.model.Beneficiario;
 import com.senes.senesapp.model.Companheiro;
 import com.senes.senesapp.model.User;
 import com.senes.senesapp.repository.BeneficiarioRepository;
@@ -37,7 +38,30 @@ public class CompanheiroResource {
 	@Autowired
 	Mailer mailer;
 	
-	//VISUALIZAÇÃO DE BENEFICIÁRIO	
+	//LISTANDO TODOS OS PROFISSIONAIS (SEM PAGINAÇÃO ATÉ O MOMENTO)
+	@GetMapping
+	public List<Companheiro> listaCadastrados(){
+		return companheiroRepository.findAll();
+	}
+	
+	//LISTANDO OS PROFISSIONAIS PELO ID
+	@GetMapping("/{id}")
+	public Optional<Companheiro> listaCadastradoPorId(@PathVariable(value="id") long id) {
+		return companheiroRepository.findById(id);
+	}
+	
+	@GetMapping("/especializacoes/{especializacao}")
+	public List<Companheiro> getProfissionaisPorEspecializacao(@PathVariable String especializacao){
+		return companheiroRepository.findProfissionalPorEspecializacao(especializacao);
+	}
+	
+	@PostMapping("/registrar")
+	public Companheiro gravar(@RequestBody Companheiro companheiro) {
+		Companheiro novoProfissional = companheiroRepository.save(companheiro);
+		return novoProfissional;
+	}
+	
+	//VISUALIZAÇÃO DE COMPANHEIRO	
 	@GetMapping("/codigo/usuario/{idUsuario}")
 	public ResponseEntity<?> buscarDadosCompanheiro(@PathVariable Long idUsuario){
 	
