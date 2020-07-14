@@ -7,6 +7,7 @@ public class CompanheiroDTO {
 	private String celular;
 	private String nome;
 	private String email;
+	private Float avaliacao;
 	
 	public String getNome() {
 		return nome;
@@ -48,4 +49,11 @@ public class CompanheiroDTO {
 		this.idUsuario = idUsuario;
 	}
 
+	public Float getAvaliacao() {
+		return avaliacao;
+	}
+
+	public void setAvaliacao(Float avaliacao) {
+		this.avaliacao = avaliacao;
+	}
 }

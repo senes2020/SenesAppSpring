@@ -81,7 +81,7 @@ public class CompanheiroResource {
 			companheiroDTO.setCelular(companheiro.getCelular());
 			companheiroDTO.setNome(companheiro.getNome());
 			companheiroDTO.setEmail(usuario.getEmail());
-			
+			companheiroDTO.setAvaliacao(companheiro.getAvaliacao());
 		}
 		
 		//Retorna o dentistaDTO se houver o objeto pesquisado, senão retorna o erro de "não encontrado"
