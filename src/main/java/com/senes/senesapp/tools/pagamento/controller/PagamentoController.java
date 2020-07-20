@@ -17,7 +17,7 @@ import com.senes.senesapp.tools.pagamento.servico.PagamentoService;
 
 
 @RestController
-@RequestMapping("api/pagamentos")
+@RequestMapping("senes/api/pagamentos")
 public class PagamentoController {
 
 	@Autowired

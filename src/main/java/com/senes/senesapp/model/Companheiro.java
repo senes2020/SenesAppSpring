@@ -75,10 +75,6 @@ private static final long serialVersionUID = 1L;
 		this.id = id;
 	}
 
-	public User getUser() {
-		return user;
-	}
-
 	public void setUser(User user) {
 		this.user = user;
 	}

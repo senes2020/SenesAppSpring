@@ -21,7 +21,6 @@ import com.senes.senesapp.repository.UserRepository;
 //import com.senes.senesapp.security.JwtAuthenticationService;
 
 @RestController
-//@RequestMapping("/home")
 @RequestMapping("/login")
 public class UserAuthentication {
 	
